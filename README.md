@@ -4,7 +4,7 @@ App de musculação para celular, feito para ser usado com uma mão só no meio 
 
 É um app web progressivo (PWA) em um único arquivo HTML, sem framework e sem dependências. Dá para usar direto no navegador, instalar na tela inicial ou empacotar como APK para Android.
 
-**Experimente:** [fafafers.github.io/companion-academia](https://fafafers.github.io/companion-academia/). Abra no celular para ter a experiência certa.
+**Dá um bisu:** [fafafers.github.io/companion-academia](https://fafafers.github.io/companion-academia/). Abra no celular.
 
 <p align="center">
   <img src="docs/screenshots/inicio.png" width="200" alt="Tela inicial com o treino do dia">
