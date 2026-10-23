@@ -1,0 +1,20 @@
+# saída do build
+dist/
+zezinho-dist.zip
+
+# imagens de exercícios: por padrão ficam fora do git (direitos autorais de terceiros).
+# Se as imagens forem suas ou tiverem licença livre, apague as duas linhas abaixo.
+public/img/exercicios/*
+!public/img/exercicios/.gitkeep
+src/js/images.local.js
+
+# pacote do PWABuilder (contém a chave de assinatura do APK; nunca suba isso)
+*.keystore
+*.jks
+signing-key-info.txt
+*.apk
+*.aab
+
+.DS_Store
+Thumbs.db
+__pycache__/
