@@ -23,6 +23,7 @@ App de musculação para celular, feito para ser usado com uma mão só no meio 
 - [Como os dados são guardados](#como-os-dados-são-guardados)
 - [Decisões técnicas](#decisões-técnicas)
 - [Limitações conhecidas](#limitações-conhecidas)
+- [Histórico de mudanças](#histórico-de-mudanças)
 - [Licença](#licença)
 
 ## Funcionalidades
@@ -355,6 +356,10 @@ As fotos não entram no backup, para manter o arquivo pequeno.
 - **Dados por aparelho.** Não há sincronização entre celular e computador. Use o backup para levar os dados de um para o outro.
 - **Estimativas.** O 1RM é uma estimativa pela fórmula de Epley e os macros do plano de exemplo são aproximados. Nenhum dos dois substitui a orientação de um profissional de educação física ou nutrição.
 - **Ciclo fixo de 12 semanas.** Mudar a duração exige editar `app.js`, como descrito em [Programa de treino](#programa-de-treino).
+
+## Histórico de mudanças
+
+O que mudou em cada versão, quando e por quê está no [CHANGELOG.md](CHANGELOG.md). Ao mudar o app, acrescente uma entrada lá no topo.
 
 ## Licença
 
