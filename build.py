@@ -18,7 +18,7 @@ ROOT = os.path.dirname(os.path.abspath(__file__))
 SRC, PUBLIC, DIST = (os.path.join(ROOT, d) for d in ('src', 'public', 'dist'))
 
 # Ordem importa: dados primeiro, inicialização por último
-JS_FILES = ['data.js', 'images.js', 'app.js', 'analytics.js', 'nutrition.js', 'profile.js', 'init.js']
+JS_FILES = ['data.js', 'images.js', 'app.js', 'analytics.js', 'nutrition.js', 'profile.js', 'program.js', 'init.js']
 
 
 def read(path):

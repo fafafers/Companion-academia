@@ -142,7 +142,7 @@ async function importBackup(file) {
     const j = JSON.parse(await file.text());
     if (!j || j.app !== 'zezinho' || !j.state || !Array.isArray(j.state.sessions)) throw new Error('formato');
     if (!confirm(`Substituir os dados deste aparelho pelo backup de ${new Date(j.at).toLocaleDateString('pt-BR')}? (${j.state.sessions.length} treinos)`)) return;
-    S = Object.assign(defaults(), j.state, { active: null }); save();
+    S = Object.assign(defaults(), j.state, { active: null }); save(); mergeCustomEx();
     applyTheme(); renderHome(); renderProfile(); toast('Backup restaurado');
   } catch (e) { toast('Esse arquivo não é um backup do app'); }
 }

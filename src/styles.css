@@ -392,6 +392,10 @@ circle.mp, circle.ms, ellipse.mp, ellipse.ms, rect.mp, rect.ms, path.mp, path.ms
 .bf.wide { grid-column: 1 / -1; }
 .bf input { width: 100%; min-width: 0; min-height: 48px; border-radius: 12px; border: 1px solid var(--line); background: var(--bg); padding: 0 12px; font-family: var(--cond); font-size: 22px; font-weight: 700; color: var(--chalk); color-scheme: dark; }
 .bf input:focus { outline: none; border-color: var(--y); }
+.bf select { width: 100%; min-width: 0; min-height: 48px; border-radius: 12px; border: 1px solid var(--line); background: var(--bg); padding: 0 10px; font-family: var(--font); font-size: 16px; font-weight: 600; color: var(--chalk); color-scheme: dark; }
+.bf select:focus { outline: none; border-color: var(--y); }
+.bf input.txtin { font-family: var(--font); font-size: 17px; font-weight: 600; }
+.bf[hidden] { display: none; }
 .cta.sm { min-height: 50px; font-size: 20px; }
 .mdelta { display: grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: 6px; margin-top: 10px; }
 .mdelta div { background: var(--s2); border-radius: 12px; padding: 8px 10px; }
@@ -475,6 +479,9 @@ circle.mp, circle.ms, ellipse.mp, ellipse.ms, rect.mp, rect.ms, path.mp, path.ms
 .ed-time { font-family: var(--cond); font-size: 18px; color: var(--y); }
 .ed-food { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 7px 0; font-size: 14px; }
 .ed-food small { display: block; color: var(--muted); font-size: 12px; }
+.pg-row > span { min-width: 0; }
+.pg-btns { display: flex; gap: 6px; flex: none; }
+.ed-food button:disabled { opacity: .3; }
 .linkadd { color: var(--y); font-weight: 600; font-size: 14px; padding: 8px 0; }
 .tgl { display: flex; align-items: center; gap: 10px; margin: 4px 0 14px; font-weight: 600; font-size: 15px; cursor: pointer; }
 .tgl input { width: 22px; height: 22px; accent-color: var(--y); }
@@ -579,6 +586,6 @@ circle.mp, circle.ms, ellipse.mp, ellipse.ms, rect.mp, rect.ms, path.mp, path.ms
 :root[data-theme="light"] .scrim { background: rgba(20, 22, 26, .4); }
 :root[data-theme="light"] .meal.done { background: rgba(63, 178, 127, .14); }
 :root[data-theme="light"] .set.is-done { background: rgba(63, 178, 127, .16); }
-:root[data-theme="light"] .bf input, :root[data-theme="light"] .ed-h input { color-scheme: light; }
+:root[data-theme="light"] .bf input, :root[data-theme="light"] .bf select, :root[data-theme="light"] .ed-h input { color-scheme: light; }
 :root[data-theme="light"] .day.on b, :root[data-theme="light"] .ach small, :root[data-theme="light"] .pf-next, :root[data-theme="light"] .meal-t, :root[data-theme="light"] .newach b { color: #8A6500 !important; }
 :root[data-theme="light"] .steps li::before { color: #8A6500; }

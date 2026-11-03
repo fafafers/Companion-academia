@@ -37,16 +37,17 @@ App de musculação para celular, feito para ser usado com uma mão só no meio 
 </p>
 
 - Programa de 12 semanas dividido em treinos A, B e C, alternando entre um bloco de semanas ímpares e outro de semanas pares. O app avança sozinho para o próximo treino ao terminar o atual.
-- Cada série tem campos grandes de carga e repetições, já preenchidos com o que foi feito da última vez. Um toque no check conclui a série, vibra e inicia o descanso.
+- Cada série tem campos grandes de carga e repetições, já preenchidos com o que foi feito da última vez: todas as séries começam com a carga da última série concluída, e as repetições vêm série por série. Um toque no check conclui a série, vibra e inicia o descanso.
 - Séries de aquecimento calculadas em percentual da carga de trabalho (50% × 10, 75% × 4 e assim por diante), já convertidas para kg.
 - Timer de descanso com o tempo de cada exercício, botões de mais e menos 15 segundos, aviso sonoro e vibração ao terminar. Continua contando certo mesmo com a tela apagada.
 - Barra de progresso em forma de barra olímpica: cada exercício concluído coloca uma anilha de cada lado.
-- Regras de progressão automáticas: se a série ficar abaixo da meta, a próxima já vem com 10% a menos; se todas as séries passarem da meta em 4 repetições ou mais, o exercício aparece com o aviso para subir a carga no próximo treino.
+- Regras de progressão automáticas: se a série ficar abaixo da meta, o app sugere 10% a menos para a próxima (só sugere: a carga salva é sempre a que você digitou); se todas as séries passarem da meta em 4 repetições ou mais, o exercício aparece com o aviso para subir a carga no próximo treino.
 - Etiquetas de esforço por exercício: parar com 1 ou 2 repetições sobrando, ou levar só a última série até a falha.
 - "Como fazer" com passo a passo, mapa muscular de frente e costas (músculos principais e secundários em laranja), dicas, erros comuns, exercícios substitutos para quando o aparelho estiver ocupado e o histórico daquele exercício.
 - Opção de pular um exercício com o motivo, que depois aparece nas estatísticas.
 - Comemoração ao concluir o treino, com confete, resumo de tempo, séries e volume, recordes pessoais batidos e conquistas desbloqueadas.
 - Treino em andamento fica salvo: dá para fechar o app e continuar de onde parou.
+- Editar treino direto no app, pelo botão abaixo do treino do dia: trocar um exercício por outro da biblioteca ou por um com nome próprio, mudar séries, repetições, carga, descanso, unidade e esforço, adicionar, remover e mudar a ordem. Cada treino é editado no bloco da semana selecionada (ímpar ou par), e dá para voltar ao original a qualquer momento.
 
 ### Progresso
 
@@ -156,7 +157,7 @@ Tudo que é conteúdo fica em `src/js/data.js`. Depois de editar, rode `python3 
 
 ### Programa de treino
 
-O programa fica na constante `PROG`, separado em bloco ímpar (`odd`, semanas 1, 3, 5...) e bloco par (`even`, semanas 2, 4, 6...). Cada bloco tem os treinos `A`, `B` e `C`, e cada treino é uma lista de exercícios em ordem:
+Para mudanças do dia a dia, use **Editar treino** dentro do app: o programa editado fica salvo no aparelho e não precisa mexer no código. Para mudar o programa padrão de quem usa o seu site, edite a constante `PROG`, separada em bloco ímpar (`odd`, semanas 1, 3, 5...) e bloco par (`even`, semanas 2, 4, 6...). Cada bloco tem os treinos `A`, `B` e `C`, e cada treino é uma lista de exercícios em ordem:
 
 ```js
 const PROG = {
@@ -178,7 +179,7 @@ const PROG = {
 | `id` | Chave do exercício na biblioteca `EX`. |
 | `s` | Número de séries de trabalho. |
 | `r` | Repetições mínimas por série (a meta). |
-| `kg` | Carga inicial. Depois do primeiro treino, o app usa a carga da última vez. |
+| `kg` | Carga inicial. Depois do primeiro treino, o app usa a carga da última série concluída da última vez, em todo lugar (lista do treino, card, aquecimento e campos). |
 | `u` | Unidade da carga: `total` (barra montada), `cada` (cada haltere), `kg`, `placas` (aparelhos com placas numeradas) ou `pc` (peso corporal). |
 | `rest` | Descanso em segundos. |
 | `t` | Esforço: `rir` (parar com 1 ou 2 repetições sobrando) ou `fail` (última série até a falha). |
@@ -281,7 +282,7 @@ O tema claro sobrescreve as mesmas variáveis em `:root[data-theme="light"]`, no
 
 ### Regras de progressão
 
-Estão em `toggleSet()`, em `src/js/app.js`: a redução de 10% quando a série fica abaixo da meta e o aviso de subir carga quando todas as séries passam da meta em 4 repetições.
+Estão em `toggleSet()`, em `src/js/app.js`: a sugestão de 10% a menos quando a série fica abaixo da meta e o aviso de subir carga quando todas as séries passam da meta em 4 repetições.
 
 ## Estrutura do projeto
 
@@ -298,6 +299,7 @@ companion-academia/
 │       ├── analytics.js      Aba Progresso: gráficos, insights, medidas e fotos
 │       ├── nutrition.js      Abas Dieta e Água, lembretes e resumo da tela inicial
 │       ├── profile.js        Aba Perfil: sequência, conquistas, tema e backup
+│       ├── program.js        Editar treino dentro do app
 │       └── init.js           Inicialização e ajustes de versões anteriores
 ├── public/
 │   ├── manifest.webmanifest  Nome, cores e ícones do app instalado
@@ -319,7 +321,7 @@ Nada sai do aparelho. Não há servidor, conta nem coleta de dados.
 
 | Onde | O quê |
 | --- | --- |
-| `localStorage`, chave `zezinho.v1` | Treinos, treino em andamento, medidas, plano e metas da dieta, água, conquistas e preferências |
+| `localStorage`, chave `zezinho.v1` | Treinos, treino em andamento, programa editado no app e exercícios próprios, medidas, plano e metas da dieta, água, conquistas e preferências |
 | IndexedDB `zezinho-fotos`, store `img` | Fotos de exercícios adicionadas pelo usuário |
 | IndexedDB `zezinho-fotos`, store `prog` | Fotos de progresso |
 

@@ -16,7 +16,7 @@ const pct = (a, b) => (b ? Math.round(a / b * 100) : 0);
 
 /* ---------- Estatísticas por treino ---------- */
 function sesStats(s) {
-  const list = plan(s.week, s.day);
+  const list = sesPlan(s);
   let planned = 0, done = 0, vol = 0;
   const sets = {};                         // séries feitas por músculo principal
   s.ex.forEach((e, i) => {
