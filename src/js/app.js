@@ -11,12 +11,15 @@ const $$ = (s, el = document) => [...el.querySelectorAll(s)];
 
 /* ---------- Estado ---------- */
 const defaults = () => ({
-  week: 1, day: 'A', sessions: [], active: null, body: [],
+  week: 1, day: 'A', sessions: [], active: null, body: [], prog: null, customEx: {},
   profile: { name: 'Zézinho', theme: 'dark', vibrate: true, sound: true }, ach: {},
   diet: { plan: JSON.parse(JSON.stringify(DIET_PLAN)), goals: { ...DIET_GOALS }, log: {}, favs: JSON.parse(JSON.stringify(DIET_FAVS)) },
   water: { goal: null, log: {}, cups: [250, 500, 1000], remind: { on: false, every: 90, from: '07:00', to: '21:00' } }
 });
 let S = load();
+// exercícios criados no app entram na biblioteca
+const mergeCustomEx = () => Object.assign(EX, S.customEx || {});
+mergeCustomEx();
 function load() {
   try { const r = localStorage.getItem(KEY); if (r) return Object.assign(defaults(), JSON.parse(r)); } catch (e) {}
   return defaults();
@@ -25,7 +28,8 @@ function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e
 
 /* ---------- Utilidades ---------- */
 const block = w => (w % 2 ? 'odd' : 'even');
-const plan = (w, d) => PROG[block(w)][d];
+const plan = (w, d) => (S.prog || PROG)[block(w)][d];   // S.prog = programa editado no app
+const sesPlan = s => s.plan || plan(s.week, s.day);       // programa com que um treino antigo foi feito
 const num = n => (Math.round(n * 10) / 10).toString().replace('.', ',');
 const parse = v => { const n = parseFloat(String(v).replace(',', '.')); return isNaN(n) ? 0 : n; };
 const r05 = n => Math.round(n * 2) / 2;
@@ -40,7 +44,7 @@ function rxText(rx) {
 }
 function loadText(rx) {
   if (rx.u === 'pc') return 'Peso corporal';
-  return `${num(rx.kg)} ${UNIT[rx.u]}`;
+  return `${num(curKg(rx))} ${UNIT[rx.u]}`;
 }
 function restText(sec) {
   const m = Math.floor(sec / 60), s = sec % 60;
@@ -48,8 +52,9 @@ function restText(sec) {
 }
 function warmLoad(rx, pct) {
   if (rx.u === 'pc') return '';
-  if (rx.u === 'placas') return `≈ ${Math.max(1, Math.round(rx.kg * pct / 100))} placas`;
-  return `≈ ${num(r05(rx.kg * pct / 100))} kg`;
+  const kg = curKg(rx);
+  if (rx.u === 'placas') return `≈ ${Math.max(1, Math.round(kg * pct / 100))} placas`;
+  return `≈ ${num(r05(kg * pct / 100))} kg`;
 }
 function estMinutes(list) {
   let s = 0;
@@ -66,6 +71,14 @@ function lastFor(id) {
   }
   return null;
 }
+/* Carga atual: a da última série concluída da última vez. Vale a do programa quando não há
+   histórico ou quando a carga foi mudada em Editar treino depois desse último registro (kgAt). */
+function curLoad(rx) {
+  const last = lastFor(rx.id), s = last && last.ex.sets.filter(z => z.done).pop();
+  if (s && s.kg !== '' && !(rx.kgAt > new Date(last.ses.date).getTime())) return s.kg;
+  return rx.u === 'pc' && !rx.kg ? '' : rx.kg;
+}
+const curKg = rx => parse(curLoad(rx));
 function bestE1(id, upto = S.sessions.length) {
   let b = 0;
   for (let i = 0; i < upto; i++) for (const e of S.sessions[i].ex)
@@ -95,7 +108,10 @@ const I = {
   x: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>',
   info: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.5"/></svg>',
   photo: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="3"/><circle cx="12" cy="12" r="3.5"/></svg>',
-  skip: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 5l8 7-8 7zM17 5v14"/></svg>'
+  skip: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 5l8 7-8 7zM17 5v14"/></svg>',
+  up: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 15l6-6 6 6"/></svg>',
+  down: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>',
+  edit: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L19 9l-4-4L4 16v4zM13.5 6.5l4 4"/></svg>'
 };
 function plateBadge(letter) {
   return `<svg class="plate-badge" viewBox="0 0 100 100" aria-hidden="true">
@@ -229,10 +245,11 @@ function renderHome() {
       </div>
       <ol class="today-list">
         ${(act ? plan(act.week, act.day) : list).map(rx => `<li><button data-act="info" data-id="${rx.id}" data-w="${act ? act.week : S.week}" data-d="${act ? act.day : S.day}">
-          <span class="nm"><i class="t ${rx.t}"></i>${EX[rx.id].n}</span><span class="rx">${rx.s}×${rx.r}${rx.u === 'pc' ? '' : `, ${num(rx.kg)} ${rx.u === 'placas' ? 'pl' : 'kg'}`}</span></button></li>`).join('')}
+          <span class="nm"><i class="t ${rx.t}"></i>${EX[rx.id].n}</span><span class="rx">${rx.s}×${rx.r}${rx.u === 'pc' ? '' : `, ${num(curKg(rx))} ${rx.u === 'placas' ? 'pl' : 'kg'}`}</span></button></li>`).join('')}
       </ol>
       <button class="cta" data-act="${act ? 'resume' : 'start'}">${act ? 'Continuar treino' : `Começar treino ${S.day}`}</button>
       ${tagLeg}
+      <button class="ghost wide" data-act="pg-edit" style="margin-top:10px" ${act ? 'disabled' : ''}>Editar treino ${act ? act.day : S.day}</button>
     </article>
     ${homeMinis()}
     ${last ? `<p class="last">Último treino: <b>Treino ${last.day}, semana ${last.week}</b>, ${new Date(last.date).toLocaleDateString('pt-BR', { day: 'numeric', month: 'short' })}, ${last.dur} min, ${last.sets} série${last.sets === 1 ? '' : 's'}${last.prs.length ? `, ${last.prs.length} recorde${last.prs.length > 1 ? 's' : ''} 🏆` : ''}.</p>`
@@ -247,14 +264,15 @@ function startWorkout() {
   S.active = {
     week: S.week, day: S.day, start: Date.now(), open: 0, rest: null,
     ex: list.map(rx => {
-      const last = lastFor(rx.id);
+      const last = lastFor(rx.id), kg = curLoad(rx);
       return {
         id: rx.id, skip: null, up: false,
         hint: last && last.ex.up ? 'up' : null,
         warm: rx.w.map(() => false),
         sets: Array.from({ length: rx.s }, (_, i) => {
           const ls = last && (last.ex.sets[i] || last.ex.sets[last.ex.sets.length - 1]);
-          return { kg: ls ? ls.kg : (rx.u === 'pc' ? '' : rx.kg), reps: ls ? ls.reps : rx.r, done: false };
+          // Todas as séries começam com a carga da última série feita da última vez
+          return { kg, reps: ls ? ls.reps : rx.r, done: false };
         })
       };
     })
@@ -364,10 +382,9 @@ function toggleSet(i, k) {
   if (s.done) {
     vibe(25); unlockAudio();
     const reps = parse(s.reps), kg = parse(s.kg);
-    // Regra de progressão: falhou antes das reps → tira ~10% na próxima série
+    // Regra de progressão: falhou antes das reps → sugere ~10% a menos (só sugere: a carga é sempre a que você digitou)
     if (reps < rx.r && k < e.sets.length - 1 && !e.sets[k + 1].done && kg > 0 && rx.u !== 'placas') {
-      e.sets[k + 1].kg = r05(kg * 0.9);
-      toast(`Abaixo da meta: próxima série com ${num(e.sets[k + 1].kg)} kg (−10%)`);
+      toast(`Abaixo da meta: se precisar, use ${num(r05(kg * 0.9))} kg na próxima (−10%)`);
     }
     if (e.sets.every(x => x.done)) {
       e.up = e.sets.every(x => parse(x.reps) >= rx.r + 4);
@@ -543,11 +560,11 @@ function openInfo(id, w, d) {
       <div><span>Trabalho</span><b>${rxText(rx)}</b></div><div><span>Carga</span><b>${loadText(rx)}</b></div>
       <div><span>Descanso</span><b>${restText(rx.rest)}</b></div>
       ${best ? `<div><span>Seu 1RM estimado</span><b>${num(best)} kg</b></div>` : ''}</div>` : ''}
-    <section class="blk"><h3>Passo a passo</h3><ol class="steps">${X.steps.map(s => `<li><span>${s}</span></li>`).join('')}</ol></section>
+    ${X.steps.length ? `<section class="blk"><h3>Passo a passo</h3><ol class="steps">${X.steps.map(s => `<li><span>${s}</span></li>`).join('')}</ol></section>` : ''}
     <section class="blk"><h3>Músculos trabalhados</h3>${bodyMap(X.p, X.s)}</section>
-    <section class="blk"><h3>Dicas</h3><ul class="bul">${X.tips.map(s => `<li>${s}</li>`).join('')}</ul></section>
-    <section class="blk"><h3>Erros comuns</h3><ul class="bul bad">${X.err.map(s => `<li>${s}</li>`).join('')}</ul></section>
-    <section class="blk"><h3>Aparelho ocupado? Troque por</h3><div class="subs">${X.subs.map(s => `<div>${s}</div>`).join('')}</div></section>
+    ${X.tips.length ? `<section class="blk"><h3>Dicas</h3><ul class="bul">${X.tips.map(s => `<li>${s}</li>`).join('')}</ul></section>` : ''}
+    ${X.err.length ? `<section class="blk"><h3>Erros comuns</h3><ul class="bul bad">${X.err.map(s => `<li>${s}</li>`).join('')}</ul></section>` : ''}
+    ${X.subs.length ? `<section class="blk"><h3>Aparelho ocupado? Troque por</h3><div class="subs">${X.subs.map(s => `<div>${s}</div>`).join('')}</div></section>` : ''}
     <section class="blk"><h3>Histórico</h3>${hist.length ? `<div class="hist">${hist.map(({ s, e }) => {
       const b = Math.max(...e.sets.filter(z => z.done).map(z => e1rm(parse(z.kg), parse(z.reps))));
       return `<div><span>${new Date(s.date).toLocaleDateString('pt-BR', { day: 'numeric', month: 'short' })}, semana ${s.week}</span>
