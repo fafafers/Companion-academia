@@ -1,10 +1,10 @@
 # Zézinho Bodybuilder
 
-App de musculação para celular, feito para ser usado com uma mão só no meio do treino. Registra séries e cargas, controla o descanso, mostra a evolução em gráficos e ainda acompanha dieta e água. Funciona offline, não precisa de conta e guarda tudo no próprio aparelho.
+Registra séries e cargas, controla o descanso, mostra a evolução em gráficos e ainda acompanha dieta e água. Funciona offline, não precisa de conta e guarda tudo no próprio aparelho.
 
 É um app web progressivo (PWA) em um único arquivo HTML, sem framework e sem dependências. Dá para usar direto no navegador, instalar na tela inicial ou empacotar como APK para Android.
 
-**Dá um bisu:** [fafafers.github.io/companion-academia](https://fafafers.github.io/companion-academia/). Abra no celular.
+**Dá um bisu:** [fafafers.github.io/companion-academia](https://fafafers.github.io/companion-academia/).
 
 <p align="center">
   <img src="docs/screenshots/inicio.png" width="200" alt="Tela inicial com o treino do dia">
